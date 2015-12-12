@@ -165,7 +165,7 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 
 	//TODO pick a random or lowest  (could not find a free one)
 	if len(distancebyIPmap) == 0 {
-		if len(s.Nodes>0){
+		if len(s.Nodes)>0{
 			return s.Nodes[0].IP
 		}
 
