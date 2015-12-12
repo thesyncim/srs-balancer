@@ -21,12 +21,21 @@ func main() {
 		ValidateHeaders: false,
 	}))
 
+	router.GET("/crossdomain.xml", func(c *gin.Context) {
+		c.Writer.Write([]byte(`<cross-domain-policy>
+  <allow-access-from domain="*"/>
+</cross-domain-policy>`))
+	})
+
 	heartbeat := router.Group("/heartbeat")
 	heartbeat.POST("ping", Heartbeat)
 
 	balancer := router.Group("/balancer")
 	balancer.GET("hls", hls)
 	balancer.GET("rtmp", rtmp)
+
+	stats := router.Group("/stats")
+	stats.GET("/nodes", nil)
 
 	router.Run(":80")
 

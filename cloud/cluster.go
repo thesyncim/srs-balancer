@@ -58,26 +58,27 @@ func (s *Cluster) IsUnderload() (bool, Continent) {
 	defer s.mu.RUnlock()
 
 	var loadbyCo map[Continent]*struct {
-		load          float64
-		totalNodes    float64
-		MinLoadEdgeIp string
-		MinLoadEdge   int64
+		load            float64
+		totalNodes      float64
+		MinLoadedEdgeIp string
+		MinLoadedBW     int64
 	}
 
-	var VisitCo = map[Continent]bool{}
+	var visitedContinent = map[Continent]bool{}
 
 	//get load by continent
 	for i := range s.Nodes {
-		if _, ok := VisitCo[s.Nodes[i].Continent]; !ok {
-			VisitCo[s.Nodes[i].Continent] = true
-			loadbyCo[s.Nodes[i].Continent].MinLoadEdge = math.MaxInt64
+		//
+		if _, ok := visitedContinent[s.Nodes[i].Continent]; !ok {
+			visitedContinent[s.Nodes[i].Continent] = true
+			loadbyCo[s.Nodes[i].Continent].MinLoadedBW = math.MaxInt64
 		}
 
 		loadbyCo[s.Nodes[i].Continent].load += float64(s.Nodes[i].CurrentBw)
 		loadbyCo[s.Nodes[i].Continent].totalNodes++
-		if s.Nodes[i].CurrentBw < loadbyCo[s.Nodes[i].Continent].MinLoadEdge {
-			loadbyCo[s.Nodes[i].Continent].MinLoadEdge = s.Nodes[i].CurrentBw
-			loadbyCo[s.Nodes[i].Continent].MinLoadEdgeIp = s.Nodes[i].IP
+		if s.Nodes[i].CurrentBw < loadbyCo[s.Nodes[i].Continent].MinLoadedBW {
+			loadbyCo[s.Nodes[i].Continent].MinLoadedBW = s.Nodes[i].CurrentBw
+			loadbyCo[s.Nodes[i].Continent].MinLoadedEdgeIp = s.Nodes[i].IP
 
 		}
 	}
@@ -90,7 +91,7 @@ func (s *Cluster) IsUnderload() (bool, Continent) {
 		load := loadbytes / MaxEdgeBW * StopEdgesThreshold
 
 		if load <= 1 && loadbyCo[i].totalNodes > 1 {
-			s.underloadEgde = loadbyCo[i].MinLoadEdgeIp
+			s.underloadEgde = loadbyCo[i].MinLoadedEdgeIp
 			return true, i
 		}
 	}
