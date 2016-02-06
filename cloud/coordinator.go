@@ -12,7 +12,7 @@ const (
 	StartEdgesThreshold float64 = 0.8
 	StopEdgesThreshold  float64 = 0.375
 	MinServers = 1
-	MaxEdgeBW = 200 / 8 * 1024 * 1024 //200Mb
+	MaxEdgeBW = 500 //200Mb
 
 	OvhProvider provider = iota
 	DOProvider
