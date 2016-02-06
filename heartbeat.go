@@ -39,16 +39,16 @@ var hlstpl = `<smil>
 		<meta base="http://%s/live" />
 	</head> 
 	<body>
-				<video src="mp4:livestream.m3u8" system-bitrate="1000000" width="480" height="360"/>
+				<video src="livestream.m3u8" system-bitrate="1000000" width="480" height="360"/>
 	</body>
 </smil>`
-
+ 
 var rtmptpl = `<smil>
 	<head>
 		<meta base="rtmp://%s/live" />
 	</head> 
 	<body>
-				<video src="mp4:livestream" system-bitrate="1000000" width="480" height="360"/>
+				<video src="livestream" system-bitrate="1000000" width="480" height="360"/>
 	</body>
 </smil>`
 
