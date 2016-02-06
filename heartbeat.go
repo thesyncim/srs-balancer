@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/thesyncim/srs-balancer/cloud"
 
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	"fmt"
 )
 
 var (
@@ -39,33 +39,33 @@ var hlstpl = `<smil>
 		<meta base="http://%s/live" />
 	</head> 
 	<body>
-				<video src="livestream.m3u8" system-bitrate="1000000" width="480" height="360"/>
+				<video src="livestream%s.m3u8" system-bitrate="1000000" width="480" height="360"/>
 	</body>
 </smil>`
- 
+
 var rtmptpl = `<smil>
 	<head>
 		<meta base="rtmp://%s/live" />
 	</head> 
 	<body>
-				<video src="livestream" system-bitrate="1000000" width="480" height="360"/>
+				<video src="livestream%s" system-bitrate="1000000" width="480" height="360"/>
 	</body>
 </smil>`
 
-func hls(c *gin.Context) {
+func hls(quality string) func(c *gin.Context) {
 
-	ip := nodes.GetEdgeIP(c.ClientIP())
-
-	fmt.Fprint(c.Writer, fmt.Sprintf(hlstpl, ip))
-
-
+	return func(c *gin.Context) {
+		ip := nodes.GetEdgeIP(c.ClientIP())
+		fmt.Fprint(c.Writer, fmt.Sprintf(hlstpl, ip, quality))
+	}
 
 }
 
-func rtmp(c *gin.Context) {
+func rtmp(quality string) func(c *gin.Context) {
 
-	ip := nodes.GetEdgeIP(c.ClientIP())
+	return func(c *gin.Context) {
+		ip := nodes.GetEdgeIP(c.ClientIP())
+		fmt.Fprint(c.Writer, fmt.Sprintf(rtmptpl, ip, quality))
 
-	fmt.Fprint(c.Writer, fmt.Sprintf(rtmptpl, ip))
-
+	}
 }
