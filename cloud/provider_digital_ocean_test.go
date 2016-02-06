@@ -15,6 +15,10 @@ func TestDigitalOceanAuthenticate(t *testing.T) {
 		t.Errorf("failed with error %s", err)
 		t.FailNow()
 	}
+    opt := &godo.ListOptions{}
+     panic( do.c.Sizes.List(opt))
+    
+  
 }
 
 func TestDigitalOceanUpdateRegions(t *testing.T) {

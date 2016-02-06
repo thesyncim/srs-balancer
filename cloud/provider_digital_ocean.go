@@ -15,7 +15,7 @@ var (
 	tokenSrc = &tokenSource{
 		AccessToken: pat,
 	}
-	doServerSize = "512mb"
+	doServerSize = "4gb"
 )
 
 type tokenSource struct {
@@ -126,10 +126,10 @@ func (do *digitalOcean) StartNode(c Continent) (string, error) {
 	}
 	createRequest := &godo.DropletCreateRequest{
 		Name:   do.newDropletName(),
-		Region: region,
+		Region: region,  
 		Size:   doServerSize,
 		Image: godo.DropletCreateImage{
-			ID: 14575753,
+			ID: 15669768,
 		},
 	}
 	newDroplet, _, err := do.c.Droplets.Create(createRequest)
