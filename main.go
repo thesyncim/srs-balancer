@@ -26,13 +26,19 @@ func main() {
   <allow-access-from domain="*"/>
 </cross-domain-policy>`))
 	})
+    
+    router.GET("/crossdomain.xml", func(c *gin.Context) {
+		c.Writer.Write([]byte(`<cross-domain-policy>
+  <allow-access-from domain="*"/>
+</cross-domain-policy>`))
+	})
 
 	heartbeat := router.Group("/heartbeat")
 	heartbeat.POST("ping", Heartbeat)
-
+ 
 	balancer := router.Group("/balancer")
-	balancer.GET("hls", hls)
-	balancer.GET("rtmp", rtmp)
+	balancer.GET("hls.smil", hls)
+	balancer.GET("rtmp.smil", rtmp)
 
 	stats := router.Group("/stats") 
 	stats.GET("/nodes", Stats.nodes)
