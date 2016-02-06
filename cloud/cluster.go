@@ -218,8 +218,12 @@ func (s *Cluster) Set(hb *HeartbeatReq) {
 		co,
 	}
 
+
+
 	s.Coordinator.SetNodeActive(hb.IP)
 	s.Nodes[hb.IP] = ei
+
+	s.Nodes[hb.IP].CurrentBw=int64(hb.Summaries.Data.System.NetSendBytes)
 
 	s.mu.Unlock()
 	log.WithField("hertBeatReq", hb).Debug("received HB request")
