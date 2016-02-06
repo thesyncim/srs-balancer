@@ -34,8 +34,9 @@ func main() {
 	balancer.GET("hls", hls)
 	balancer.GET("rtmp", rtmp)
 
-	stats := router.Group("/stats")
-	stats.GET("/nodes", nil)
+	stats := router.Group("/stats") 
+	stats.GET("/nodes", Stats.nodes)
+	stats.GET("/nodes/:id", nil)
 
 	router.Run(":80")
 

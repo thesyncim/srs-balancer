@@ -16,6 +16,33 @@ type EdgeInfo struct {
 	Continent   Continent
 }
 
+
+type Stats struct {
+	c *Cluster
+}
+
+func (s *Stats)Nodes() []*EdgeInfo {
+
+	s.c.mu.Lock()
+	defer s.c.mu.Unlock()
+	var nodes []*EdgeInfo
+	for i := range s.c.Nodes {
+		nodes = append(nodes, s.c.Nodes[i])
+	}
+
+
+	return nodes
+}
+func (s *Stats)Node(id string) *EdgeInfo {
+	s.c.mu.Lock()
+	defer s.c.mu.Unlock()
+
+	if ok, val := s.c.Nodes[id]; ok {
+		return val
+	}
+	return nil
+}
+
 type Cluster struct {
 	Nodes         map[string]*EdgeInfo
 	Coordinator   *Coordinator
@@ -32,6 +59,8 @@ func NewCluster() *Cluster {
 	go s.RemoveDead()
 	return s
 }
+
+
 
 
 
@@ -165,12 +194,12 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 
 	//TODO pick a random or lowest  (could not find a free one)
 	if len(distancebyIPmap) == 0 {
-		if len(s.Nodes)>0{
-			for ip,_:=range s.Nodes{
+		if len(s.Nodes) > 0 {
+			//get the first one
+			for ip, _ := range s.Nodes {
 				return ip
 			}
 		}
-
 	}
 	return distancebyIPmap[small]
 
