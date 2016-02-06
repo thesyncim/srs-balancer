@@ -37,7 +37,7 @@ func (s *Stats)Node(id string) *EdgeInfo {
 	s.c.mu.Lock()
 	defer s.c.mu.Unlock()
 
-	if ok, val := s.c.Nodes[id]; ok {
+	if val, ok := s.c.Nodes[id]; ok {
 		return val
 	}
 	return nil
