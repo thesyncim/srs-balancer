@@ -129,7 +129,7 @@ func (do *digitalOcean) StartNode(c Continent) (string, error) {
 		Region: region,  
 		Size:   doServerSize,
 		Image: godo.DropletCreateImage{
-			ID: 15669768,
+			ID: 15669918,
 		},
 	}
 	newDroplet, _, err := do.c.Droplets.Create(createRequest)
