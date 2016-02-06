@@ -11,8 +11,16 @@ type stats struct {
 }
 
 func (s *stats) nodes(c *gin.Context) {
+   pretty.Println("IDS: ",nodes.Ids())
+   pretty.Println("total: ",len(nodes.Ids()))
+ for i:=range nodes.Nodes{
 
-	pretty.Fprintf(c.Writer, "%+v\n", nodes)
+	 pretty.Println(nodes.Nodes[i])
+
+ }
+    
+ 
+
 
 }
 
