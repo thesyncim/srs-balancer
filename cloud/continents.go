@@ -23,7 +23,6 @@ var isoCodeToContinente = map[string]Continent{
 	"SA": SouthAmerica,
 }
 
-
 const (
 //Africa ...
 	Africa Continent = iota + 1
@@ -41,7 +40,6 @@ const (
 	SouthAmerica
 //Undefined ...
 	Undefined
-
 
 	defaultContinent = Europe
 )

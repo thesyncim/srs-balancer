@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"sort"
 )
 
 type EdgeInfo struct {
@@ -15,7 +16,6 @@ type EdgeInfo struct {
 	CurrentBw   int64
 	Continent   Continent
 }
-
 
 type Stats struct {
 	c *Cluster
@@ -29,7 +29,6 @@ func (s *Stats)Nodes() []*EdgeInfo {
 	for i := range s.c.Nodes {
 		nodes = append(nodes, s.c.Nodes[i])
 	}
-
 
 	return nodes
 }
@@ -59,10 +58,6 @@ func NewCluster() *Cluster {
 	go s.RemoveDead()
 	return s
 }
-
-
-
-
 
 func (s *Cluster) Ids() []string {
 	var ids []string
@@ -154,6 +149,27 @@ func (s *Cluster) IsOverload() (bool, Continent) {
 	}
 	return false, Undefined
 }
+type server struct {
+	distance float64
+	ip       string
+	load     int64
+}
+type servers []server
+
+// Len is part of sort.Interface.
+func (s servers) Len() int {
+	return len(s)
+}
+
+// Swap is part of sort.Interface.
+func (s servers) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (s servers) Less(i, j int) bool {
+	return s[i].distance < s[j].distance
+}
 
 func (s *Cluster) GetEdgeIP(userIP string) string {
 	//holds map-> distance to ip
@@ -166,13 +182,21 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 	var distance float64
 	s.mu.RLock()
 
+	var Servers servers
+
 	for ip := range s.Nodes {
 		coord := s.Nodes[ip].Coordinates
 		distance = Distance(coord.Latitude, ipLoc.Longitude, ipLoc.Latitude, coord.Longitude)
 
+		//we are excluding overloaded servers
 		if float64(s.Nodes[ip].CurrentBw) > MaxEdgeBW * StartEdgesThreshold {
 			continue
 		}
+		Servers = append(Servers, server{
+			distance:distance,
+			ip:ip,
+			load:s.Nodes[ip].CurrentBw,
+		})
 		//fill distance -> ip
 		distancebyIPmap[distance] = ip
 	}
@@ -184,26 +208,43 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 		"DistanceKM": distance,
 	}).Debug("GetNearIp")
 
-	//get the closest
-	small := math.MaxFloat64
-	for distance := range distancebyIPmap {
-		if distance < small {
-			small = distance
+	//TODO pick a random or lowest  (could not find a free one)
+	if Servers.Len() == 0 {
+		//maps iteration are random
+		for ip := range s.Nodes {
+			return ip
+		}
+
+
+	}
+
+
+	//Servers sorted by distance
+	sort.Sort(Servers)
+
+	//pick 30% off the  closest servers and chose the one less overloaded
+
+	number :=math.Floor((float64(Servers.Len())/3) + .5)
+	if number==0{
+		number=1
+	}
+
+	load :=math.MaxInt64
+	index :=0
+
+	for i:=0; i<int(number);i++{
+		if Servers[i].load < int64(load){
+			load=int(Servers[i].load)
+			index=i
 		}
 	}
 
-	//TODO pick a random or lowest  (could not find a free one)
-	if len(distancebyIPmap) == 0 {
-		if len(s.Nodes) > 0 {
-			//get the first one
-			for ip, _ := range s.Nodes {
-				return ip
-			}
-		}
-	}
-	return distancebyIPmap[small]
+
+
+	return Servers[index].ip
 
 }
+
 
 //TODO validate hb request
 //Set create or update an Edge server
@@ -218,12 +259,10 @@ func (s *Cluster) Set(hb *HeartbeatReq) {
 		co,
 	}
 
-
-
 	s.Coordinator.SetNodeActive(hb.IP)
 	s.Nodes[hb.IP] = ei
 
-	s.Nodes[hb.IP].CurrentBw=int64(hb.Summaries.Data.System.ConnSrs)
+	s.Nodes[hb.IP].CurrentBw = int64(hb.Summaries.Data.System.ConnSrs)
 
 	s.mu.Unlock()
 	log.WithField("hertBeatReq", hb).Debug("received HB request")

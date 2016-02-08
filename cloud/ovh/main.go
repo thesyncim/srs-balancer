@@ -93,7 +93,6 @@ func (o *ovh) StartNode(co Continent) (ip string, err error) {
 		return "", err
 	}
 
-
 	return ip, err
 
 }

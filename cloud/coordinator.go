@@ -10,9 +10,9 @@ type provider int
 
 const (
 	StartEdgesThreshold float64 = 0.8
-	StopEdgesThreshold  float64 = 0.375
+	StopEdgesThreshold float64 = 0.375
 	MinServers = 1
-	MaxEdgeBW = 500 //200Mb
+	MaxEdgeBW = 370 //200Mb
 
 	OvhProvider provider = iota
 	DOProvider

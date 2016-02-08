@@ -29,7 +29,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"log"
-
 )
 
 func cross(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -44,8 +43,6 @@ func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
         <allow-access-from domain="*"/>
         </cross-domain-policy>`)
 	}else {
-
-
 
 		s := "http://149.202.163.159/live/%s"
 		http.Redirect(w, r, fmt.Sprintf(s, ps.ByName("name")), 302)

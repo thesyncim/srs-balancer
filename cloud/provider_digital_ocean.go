@@ -126,7 +126,7 @@ func (do *digitalOcean) StartNode(c Continent) (string, error) {
 	}
 	createRequest := &godo.DropletCreateRequest{
 		Name:   do.newDropletName(),
-		Region: region,  
+		Region: region,
 		Size:   doServerSize,
 		Image: godo.DropletCreateImage{
 			ID: 15669918,

@@ -25,6 +25,5 @@ func (o *ovh) Authenticate() error {
 
 	}
 
-
 	return nil
 }
