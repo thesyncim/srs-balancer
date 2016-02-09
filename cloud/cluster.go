@@ -132,14 +132,15 @@ func (s *Cluster) IsOverload() (bool, Continent) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var loadbyCo map[Continent]*struct {
+	var loadbyCo map[Continent]struct {
 		load       float64
 		totalNodes float64
 	}
 	//get load by continent
 	for i := range s.Nodes {
-		loadbyCo[s.Nodes[i].Continent].load += float64(s.Nodes[i].CurrentBw)
-		loadbyCo[s.Nodes[i].Continent].totalNodes++
+		tmp:=loadbyCo[s.Nodes[i].Continent]
+		tmp.load += float64(s.Nodes[i].CurrentBw)
+		tmp.totalNodes++
 	}
 
 	//check if overloaded
