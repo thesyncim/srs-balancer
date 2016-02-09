@@ -81,12 +81,14 @@ func (s *Cluster) IsUnderload() (bool, Continent) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var loadbyCo map[Continent]*struct {
+	var loadbyCo = map[Continent]*struct {
 		load            float64
 		totalNodes      float64
 		MinLoadedEdgeIp string
 		MinLoadedBW     int64
-	}
+	}{}
+
+
 
 	var visitedContinent = map[Continent]bool{}
 
