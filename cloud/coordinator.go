@@ -10,9 +10,9 @@ type provider int
 
 const (
 	StartEdgesThreshold float64 = 0.8
-	StopEdgesThreshold float64 = 0.375
-	MinServers = 1
-	MaxEdgeBW = 370 //200Mb
+	StopEdgesThreshold  float64 = 0.375
+	MinServers                  = 1
+	MaxEdgeBW                   = 370 //200Mb
 
 	OvhProvider provider = iota
 	DOProvider
@@ -41,6 +41,7 @@ func NewCoordinator(cl *Cluster) *Coordinator {
 		},
 		activeNodes: make(map[string]bool),
 	}
+	go c.Monitor()
 
 	go func(c *Coordinator) {
 		time.Sleep(15 * time.Second)
@@ -77,44 +78,50 @@ func (c *Coordinator) Monitor() {
 
 	go func() {
 		for range time.Tick(15 * time.Second) {
-			c.startNodeMu.Lock()
-			if isoverloaded, continent := c.cluster.IsOverload(); isoverloaded {
-				err := c.Providers[DOProvider].Authenticate()
-				if err != nil {
-					c.startNodeMu.Unlock()
-					log.Fatalln(err)
+			func() {
+				c.startNodeMu.Lock()
+				defer c.startNodeMu.Unlock()
+				if isoverloaded, continent := c.cluster.IsOverload(); isoverloaded {
+					err := c.Providers[DOProvider].Authenticate()
+					if err != nil {
+						log.Fatalln(err)
+					}
+
+					_, err = c.Providers[DOProvider].StartNode(continent)
+					if err != nil {
+						log.Println(err)
+					}
+
 				}
 
-				_, err = c.Providers[DOProvider].StartNode(continent)
-				if err != nil {
-					c.startNodeMu.Unlock()
-					log.Println(err)
-				}
-				c.startNodeMu.Unlock()
-
-			}
+			}()
 
 		}
 	}()
 
 	for range time.Tick(15 * time.Second) {
-		c.stopNodeMu.Lock()
-		if isunderloaded, _ := c.cluster.IsUnderload(); isunderloaded {
-			err := c.Providers[DOProvider].Authenticate()
-			if err != nil {
-				//TODO do not die
-				c.stopNodeMu.Unlock()
-				log.Fatalln(err)
+
+		func() {
+			c.stopNodeMu.Lock()
+			defer c.stopNodeMu.Unlock()
+			if isunderloaded, _ := c.cluster.IsUnderload(); isunderloaded {
+				err := c.Providers[DOProvider].Authenticate()
+				if err != nil {
+					//TODO do not die
+
+					log.Fatalln(err)
+				}
+
+				edgetostop := c.cluster.GetMinLoadEdge()
+				err = c.Providers[DOProvider].StopNode(edgetostop)
+				if err != nil {
+
+					log.Println(err)
+				}
+				delete(c.activeNodes, edgetostop)
 			}
 
-			edgetostop := c.cluster.GetMinLoadEdge()
-			err = c.Providers[DOProvider].StopNode(edgetostop)
-			if err != nil {
-				c.stopNodeMu.Unlock()
-				log.Println(err)
-			}
-			delete(c.activeNodes, edgetostop)
-		}
+		}()
 
 	}
 

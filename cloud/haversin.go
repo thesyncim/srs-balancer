@@ -6,7 +6,7 @@ import (
 
 // haversin(θ) function
 func hsin(theta float64) float64 {
-	return math.Pow(math.Sin(theta / 2), 2)
+	return math.Pow(math.Sin(theta/2), 2)
 }
 
 // Distance function returns the distance (in meters) between two points of
@@ -30,7 +30,7 @@ func Distance(lat1, lon1, lat2, lon2 float64) float64 {
 	r = 6378100 // Earth radius in METERS
 
 	// calculate
-	h := hsin(la2 - la1) + math.Cos(la1) * math.Cos(la2) * hsin(lo2 - lo1)
+	h := hsin(la2-la1) + math.Cos(la1)*math.Cos(la2)*hsin(lo2-lo1)
 
 	return 2 * r * math.Asin(math.Sqrt(h))
 }

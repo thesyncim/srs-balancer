@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	pat = "9968278d444269ac52a80a0bd0c72f96ce37feb7b948d172b763ca170b92994c"
+	pat      = "9968278d444269ac52a80a0bd0c72f96ce37feb7b948d172b763ca170b92994c"
 	tokenSrc = &tokenSource{
 		AccessToken: pat,
 	}
@@ -89,7 +89,7 @@ func (do *digitalOcean) updateAvailableRegions() error {
 
 func random(min, max int) int {
 	rand.Seed(time.Now().Unix())
-	return rand.Intn(max - min) + min
+	return rand.Intn(max-min) + min
 }
 
 func (do *digitalOcean) pickDCRegion(c Continent) (string, error) {
@@ -109,7 +109,7 @@ func (do *digitalOcean) pickDCRegion(c Continent) (string, error) {
 		return "", ErrUnavailableDatacenter
 	}
 	//pick one random
-	r := random(0, len(regions) - 1)
+	r := random(0, len(regions)-1)
 	return regions[r], nil
 }
 

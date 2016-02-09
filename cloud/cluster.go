@@ -21,7 +21,7 @@ type Stats struct {
 	c *Cluster
 }
 
-func (s *Stats)Nodes() []*EdgeInfo {
+func (s *Stats) Nodes() []*EdgeInfo {
 
 	s.c.mu.Lock()
 	defer s.c.mu.Unlock()
@@ -32,7 +32,7 @@ func (s *Stats)Nodes() []*EdgeInfo {
 
 	return nodes
 }
-func (s *Stats)Node(id string) *EdgeInfo {
+func (s *Stats) Node(id string) *EdgeInfo {
 	s.c.mu.Lock()
 	defer s.c.mu.Unlock()
 
@@ -149,6 +149,7 @@ func (s *Cluster) IsOverload() (bool, Continent) {
 	}
 	return false, Undefined
 }
+
 type server struct {
 	distance float64
 	ip       string
@@ -189,13 +190,13 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 		distance = Distance(coord.Latitude, ipLoc.Longitude, ipLoc.Latitude, coord.Longitude)
 
 		//we are excluding overloaded servers
-		if float64(s.Nodes[ip].CurrentBw) > MaxEdgeBW * StartEdgesThreshold {
+		if float64(s.Nodes[ip].CurrentBw) > MaxEdgeBW*StartEdgesThreshold {
 			continue
 		}
 		Servers = append(Servers, server{
-			distance:distance,
-			ip:ip,
-			load:s.Nodes[ip].CurrentBw,
+			distance: distance,
+			ip:       ip,
+			load:     s.Nodes[ip].CurrentBw,
 		})
 		//fill distance -> ip
 		distancebyIPmap[distance] = ip
@@ -215,36 +216,32 @@ func (s *Cluster) GetEdgeIP(userIP string) string {
 			return ip
 		}
 
-
 	}
-
 
 	//Servers sorted by distance
 	sort.Sort(Servers)
 
 	//pick 30% off the  closest servers and chose the one less overloaded
 
-	number :=math.Floor((float64(Servers.Len())/3) + .5)
-	if number==0{
-		number=1
+	number := math.Floor((float64(Servers.Len()) / 3) + .5)
+	if number == 0 {
+		number = 1
 	}
 
-	load :=math.MaxInt64
-	index :=0
+	load := int64(math.MaxInt64)
+	index := 0
 
-	for i:=0; i<int(number);i++{
-		if Servers[i].load < int64(load){
-			load=int(Servers[i].load)
-			index=i
+	for i := 0; i < int(number); i++ {
+		if Servers[i].load < int64(load) {
+			sload := Servers[i].load
+			load = int64(sload)
+			index = i
 		}
 	}
-
-
 
 	return Servers[index].ip
 
 }
-
 
 //TODO validate hb request
 //Set create or update an Edge server
@@ -280,7 +277,7 @@ func (s *Cluster) LoadByContinent(co Continent) float64 {
 		}
 	}
 
-	return float64(load) / float64(ctr) / float64(MaxEdgeBW * ctr)
+	return float64(load) / float64(ctr) / float64(MaxEdgeBW*ctr)
 }
 
 func (s *Cluster) remove(key string) {
@@ -318,9 +315,9 @@ type HeartbeatReq struct {
 	Summaries *struct {
 		Code int `json:"code"`
 		Data *struct {
-			NowMs  int  `json:"now_ms"`
-			Ok     bool `json:"ok"`
-			Self   *struct {
+			NowMs int  `json:"now_ms"`
+			Ok    bool `json:"ok"`
+			Self  *struct {
 				Argv       string  `json:"argv"`
 				CPUPercent float64 `json:"cpu_percent"`
 				Cwd        string  `json:"cwd"`
